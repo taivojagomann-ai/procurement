@@ -380,7 +380,7 @@ function renderMetrics() {
   if (m.total === 0) { el.innerHTML = ''; return; }
   el.innerHTML = `
     <div class="metric"><p class="label">Hankeid kokku</p><p class="value">${m.total}</p></div>
-    <div class="metric"><p class="label">Võidetud</p><p class="value">${m.won} / ${m.total}</p></div>
+    <div class="metric"><p class="label">Võidetud</p><p class="value">${m.won} / ${m.total} (${m.total ? Math.round((m.won / m.total) * 1000) / 10 : 0}%)</p></div>
     <div class="metric"><p class="label">Enim probleeme tekitav kriteerium</p><p class="value" style="font-size:16px;">${m.topProblem ? m.topProblem + ' (' + m.topCount + 'x)' : '—'}</p></div>
   `;
 }
