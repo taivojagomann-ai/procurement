@@ -3,43 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hangete dashboard</title>
+<title>Hangete dashboard — concise</title>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap">
 <style>
   :root {
-    --bg: #faf9f6;
+    --bg: #ffffff;
     --surface: #ffffff;
-    --surface-muted: #f2f1ec;
-    --border: rgba(11,11,11,0.10);
-    --border-strong: rgba(11,11,11,0.18);
-    --text-primary: #16160f;
-    --text-secondary: #57564d;
-    --text-muted: #8a8980;
-    --accent: #1d5f99;
-    --accent-bg: #e6f0f8;
-    --won: #0f6e56;
-    --won-bg: #e1f5ee;
-    --lost: #993c1d;
-    --lost-bg: #faece7;
-    --ours: #57564d;
-    --radius: 10px;
+    --surface-muted: #fdfce0;
+    --border: rgba(51,51,51,0.14);
+    --border-strong: rgba(51,51,51,0.30);
+    --text-primary: #262620;
+    --text-secondary: #63625a;
+    --text-muted: #8f8e84;
+    --accent: #333333;
+    --yellow: #f2e61a;
+    --dark: #333333;
+    --won: #f2e61a;
+    --won-bg: #333333;
+    --lost: #262620;
+    --lost-bg: #ececdf;
+    --ours: #333333;
+    --radius: 8px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #171714;
-      --surface: #201f1b;
-      --surface-muted: #262521;
-      --border: rgba(255,255,255,0.10);
-      --border-strong: rgba(255,255,255,0.20);
+      --bg: #1c1c19;
+      --surface: #262521;
+      --surface-muted: #302f29;
+      --border: rgba(255,255,255,0.12);
+      --border-strong: rgba(255,255,255,0.24);
       --text-primary: #f3f2ed;
-      --text-secondary: #b9b7ac;
-      --text-muted: #85837a;
-      --accent: #6fb1e8;
-      --accent-bg: #1c3346;
-      --won: #5dcaa5;
-      --won-bg: #133c31;
-      --lost: #f0997b;
-      --lost-bg: #4a2417;
-      --ours: #b9b7ac;
+      --text-secondary: #c3c2b7;
+      --text-muted: #8f8e84;
+      --accent: #f2e61a;
+      --yellow: #f2e61a;
+      --dark: #f2e61a;
+      --won: #f2e61a;
+      --won-bg: #3a3930;
+      --lost: #f3f2ed;
+      --lost-bg: #3a3930;
+      --ours: #c3c2b7;
     }
   }
   * { box-sizing: border-box; }
@@ -47,21 +50,24 @@
     margin: 0;
     background: var(--bg);
     color: var(--text-primary);
-    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family: 'Switzer', Arial, sans-serif;
     font-size: 14px;
     line-height: 1.5;
-    padding: 2rem 1.5rem 4rem;
+    padding: 0 0 4rem;
   }
-  .wrap { max-width: 920px; margin: 0 auto; }
-  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
-  .sub { color: var(--text-secondary); margin: 0 0 1.75rem; font-size: 13px; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 1.5rem; }
+  .brand-header { background: var(--surface-muted); padding: 2rem 1.5rem 1.75rem; margin-bottom: 2rem; }
+  .brand-header-inner { max-width: 920px; margin: 0 auto; border-left: 2px solid var(--yellow); padding-left: 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+  .brand-header h1 { font-size: 24px; font-weight: 700; margin: 0 0 4px; color: var(--text-primary); }
+  .brand-header .sub { color: var(--text-secondary); margin: 0; font-size: 13px; }
+  .brand-logo { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; white-space: nowrap; flex-shrink: 0; }
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.75rem; }
-  .metric { background: var(--surface-muted); border-radius: var(--radius); padding: 14px; }
+  .metric { background: var(--surface-muted); border-radius: var(--radius); padding: 14px; border-left: 3px solid var(--yellow); }
   .metric .label { font-size: 12px; color: var(--text-secondary); margin: 0 0 4px; }
-  .metric .value { font-size: 20px; font-weight: 600; margin: 0; }
+  .metric .value { font-size: 20px; font-weight: 700; margin: 0; }
 
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 1.5rem; }
-  .panel h2 { font-size: 15px; font-weight: 600; margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .panel h2 { font-size: 15px; font-weight: 700; margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
   .panel h2 .chev { font-size: 12px; color: var(--text-muted); transition: transform 0.15s; }
   .panel.collapsed .body { display: none; }
   .panel.collapsed h2 .chev { transform: rotate(-90deg); }
@@ -69,22 +75,22 @@
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
   label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
   input[type=text], input[type=number], select, textarea {
-    width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border-strong);
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-strong);
     background: var(--surface); color: var(--text-primary); font-size: 13px; font-family: inherit;
   }
-  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--yellow); outline-offset: 1px; }
   .field { margin-bottom: 10px; }
   .field.full { grid-column: 1 / -1; }
   textarea { min-height: 90px; resize: vertical; font-family: ui-monospace, monospace; font-size: 12px; }
 
   button {
     font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer;
-    border-radius: 7px; border: 1px solid var(--border-strong); background: var(--surface);
+    border-radius: 6px; border: 1px solid var(--border-strong); background: var(--surface);
     color: var(--text-primary); padding: 8px 14px;
   }
   button:hover { background: var(--surface-muted); }
-  button.primary { background: var(--accent); border-color: var(--accent); color: white; }
-  button.primary:hover { opacity: 0.92; }
+  button.primary { background: var(--dark); border-color: var(--dark); color: var(--yellow); font-weight: 700; }
+  button.primary:hover { opacity: 0.88; }
   button.ghost { border-color: transparent; padding: 6px 8px; color: var(--text-secondary); }
   button.small { padding: 5px 10px; font-size: 12px; }
   .row-actions { display: flex; gap: 8px; margin-top: 10px; }
@@ -100,21 +106,23 @@
 
   .tender { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; }
   .tender-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
-  .tender-head .name { font-weight: 600; font-size: 14px; }
-  .badge { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 500; white-space: nowrap; }
-  .badge.won { background: var(--won-bg); color: var(--won); }
-  .badge.lost { background: var(--lost-bg); color: var(--lost); }
+  .tender-head .name { font-weight: 700; font-size: 14px; }
+  .badge { font-size: 11px; padding: 3px 10px; border-radius: 4px; font-weight: 700; white-space: nowrap; }
+  .badge.won { background: var(--won-bg); color: var(--yellow); }
+  .badge.lost { background: var(--lost-bg); color: var(--text-primary); }
 
   .criteria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 20px; }
-  .crit-block .top { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
-  .diff { font-weight: 600; }
-  .diff.bad { color: var(--lost); }
+  .crit-block .top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .diff { font-weight: 700; }
   .diff.neutral { color: var(--text-secondary); font-weight: 400; }
+  .pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+  .pill-bad { background: var(--lost-bg); color: var(--text-primary); }
+  .pill-good { background: var(--yellow); color: var(--dark); }
   .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
   .bar-track { flex: 1; background: var(--surface-muted); border-radius: 3px; height: 6px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 3px; }
   .bar-fill.ours { background: var(--ours); }
-  .bar-fill.win { background: var(--won); }
+  .bar-fill.win { background: var(--yellow); }
   .bar-label { font-size: 11px; color: var(--text-muted); min-width: 70px; text-align: right; }
   .text-compare { display: flex; gap: 8px; flex-wrap: wrap; }
   .text-pill { font-size: 12px; padding: 4px 10px; border-radius: 6px; background: var(--surface-muted); }
@@ -122,19 +130,33 @@
 
   .empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-secondary); }
   .status-msg { font-size: 12px; margin-top: 8px; min-height: 16px; }
-  .status-msg.ok { color: var(--won); }
-  .status-msg.err { color: var(--lost); }
+  .status-msg.ok { color: var(--text-primary); font-weight: 700; }
+  .status-msg.err { color: var(--text-primary); font-weight: 700; text-decoration: underline wavy var(--yellow); }
   .hint { font-size: 12px; color: var(--text-muted); margin: 6px 0 10px; }
   code { background: var(--surface-muted); padding: 1px 5px; border-radius: 4px; font-size: 11px; }
 </style>
 </head>
 <body>
+
+<div class="brand-header">
+  <div class="brand-header-inner">
+    <div>
+      <h1>Hangete dashboard</h1>
+      <p class="sub">Meie pakkumuste võrdlus võidetud pakkumustega — vabalt valitavate kriteeriumite lõikes</p>
+    </div>
+    <div class="brand-logo">concise</div>
+  </div>
+</div>
+
 <div class="wrap">
 
-  <h1>Hangete dashboard</h1>
-  <p class="sub">Meie pakkumuste võrdlus võidetud pakkumustega — vabalt valitavate kriteeriumite lõikes</p>
-
   <div class="metrics" id="metrics"></div>
+
+  <div class="panel" id="breakdownPanel" style="display:none;">
+    <h2 style="cursor:default;">Kriteeriumite keskmine erinevus</h2>
+    <p class="hint" style="margin-top:-6px;">Positiivne % tähendab, et oleme keskmiselt halvemad selles kriteeriumis; negatiivne, et oleme keskmiselt paremad. Arvutatud kõigi hangete peale, kus see kriteerium esineb.</p>
+    <div class="body" id="breakdownBody"></div>
+  </div>
 
   <div class="panel collapsed" id="addPanel">
     <h2 onclick="togglePanel('addPanel')">Lisa uus hange <span class="chev">▾</span></h2>
@@ -265,8 +287,20 @@ async function loadData() {
     console.error('Andmete lugemine ebaõnnestus', e);
     tenders = [];
   }
+
+  let migrated = false;
+  tenders.forEach(t => {
+    (t.criteria || []).forEach(c => {
+      if (c.label === 'Tähtaeg (päeva)') {
+        c.label = 'Tähtaeg (tööpäeva)';
+        migrated = true;
+      }
+    });
+  });
+  if (migrated) await saveData();
+
   addCritRow('Hind', 'lower_better');
-  addCritRow('Tähtaeg (päeva)', 'lower_better');
+  addCritRow('Tähtaeg (tööpäeva)', 'lower_better');
   render();
 }
 
@@ -307,8 +341,8 @@ function renderMetrics() {
   if (m.total === 0) { el.innerHTML = ''; return; }
   el.innerHTML = `
     <div class="metric"><p class="label">Hankeid kokku</p><p class="value">${m.total}</p></div>
-    <div class="metric"><p class="label">Võidetud</p><p class="value" style="color:var(--won)">${m.won} / ${m.total}</p></div>
-    <div class="metric"><p class="label">Enim probleeme tekitav kriteerium</p><p class="value" style="color:var(--lost); font-size:16px;">${m.topProblem ? m.topProblem + ' (' + m.topCount + 'x)' : '—'}</p></div>
+    <div class="metric"><p class="label">Võidetud</p><p class="value">${m.won} / ${m.total}</p></div>
+    <div class="metric"><p class="label">Enim probleeme tekitav kriteerium</p><p class="value" style="font-size:16px;">${m.topProblem ? m.topProblem + ' (' + m.topCount + 'x)' : '—'}</p></div>
   `;
 }
 
@@ -334,7 +368,7 @@ function renderCriterion(c) {
   if (c.type === 'text') {
     return `
       <div class="crit-block">
-        <div class="top"><span>${escapeHtml(c.label)}</span><span class="diff ${diffBad ? 'bad' : 'neutral'}">${diffLabel}</span></div>
+        <div class="top"><span>${escapeHtml(c.label)}</span>${diffBad ? `<span class="pill pill-bad">${diffLabel}</span>` : `<span class="diff neutral">${diffLabel}</span>`}</div>
         <div class="text-compare">
           <span class="text-pill"><span class="who">Meie</span>${escapeHtml(String(c.ourValue))}</span>
           <span class="text-pill"><span class="who">Võitja</span>${escapeHtml(String(c.winValue))}</span>
@@ -349,7 +383,7 @@ function renderCriterion(c) {
 
   return `
     <div class="crit-block">
-      <div class="top"><span>${escapeHtml(c.label)}</span><span class="diff ${diffBad ? 'bad' : 'neutral'}">${diffLabel}</span></div>
+      <div class="top"><span>${escapeHtml(c.label)}</span>${diffBad ? `<span class="pill pill-bad">${diffLabel}</span>` : `<span class="diff neutral">${diffLabel}</span>`}</div>
       <div class="bar-row"><div class="bar-track"><div class="bar-fill ours" style="width:${ourBar}%"></div></div><span class="bar-label">${fmtVal(c.ourValue, c.type)}</span></div>
       <div class="bar-row"><div class="bar-track"><div class="bar-fill win" style="width:${winBar}%"></div></div><span class="bar-label">${fmtVal(c.winValue, c.type)}</span></div>
     </div>
@@ -395,8 +429,68 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
+function computeCriteriaBreakdown() {
+  const map = {};
+  tenders.forEach(t => {
+    (t.criteria || []).forEach(c => {
+      if (!map[c.label]) map[c.label] = { numericSum: 0, numericCount: 0, textTotal: 0, textMatch: 0 };
+      if (c.type === 'text') {
+        map[c.label].textTotal++;
+        if (String(c.ourValue).trim().toLowerCase() === String(c.winValue).trim().toLowerCase()) map[c.label].textMatch++;
+      } else {
+        const our = parseNum(c.ourValue), win = parseNum(c.winValue);
+        if (!win) return;
+        const worsePct = c.type === 'lower_better' ? ((our - win) / win) * 100 : ((win - our) / win) * 100;
+        map[c.label].numericSum += worsePct;
+        map[c.label].numericCount++;
+      }
+    });
+  });
+
+  return Object.entries(map).map(([label, d]) => {
+    if (d.numericCount > 0) {
+      return { label, kind: 'numeric', avg: Math.round((d.numericSum / d.numericCount) * 10) / 10, count: d.numericCount };
+    }
+    return { label, kind: 'text', matchRate: Math.round((d.textMatch / d.textTotal) * 100), count: d.textTotal };
+  }).sort((a, b) => (b.kind === 'numeric' ? Math.abs(b.avg) : 0) - (a.kind === 'numeric' ? Math.abs(a.avg) : 0));
+}
+
+function renderBreakdown() {
+  const panel = document.getElementById('breakdownPanel');
+  const body = document.getElementById('breakdownBody');
+  const data = computeCriteriaBreakdown();
+
+  if (tenders.length === 0 || data.length === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+
+  const maxAbs = Math.max(...data.filter(d => d.kind === 'numeric').map(d => Math.abs(d.avg)), 1);
+
+  body.innerHTML = data.map(d => {
+    if (d.kind === 'numeric') {
+      const bad = d.avg > 0;
+      const barPct = Math.max(2, Math.round((Math.abs(d.avg) / maxAbs) * 100));
+      return `
+        <div class="crit-block" style="margin-bottom:14px;">
+          <div class="top"><span>${escapeHtml(d.label)}</span><span class="pill ${bad ? 'pill-bad' : 'pill-good'}">${d.avg > 0 ? '+' : ''}${d.avg}%</span></div>
+          <div class="bar-row"><div class="bar-track"><div class="bar-fill" style="width:${barPct}%; background:${bad ? 'var(--dark)' : 'var(--yellow)'}"></div></div><span class="bar-label">${d.count} hanke põhjal</span></div>
+        </div>
+      `;
+    }
+    return `
+      <div class="crit-block" style="margin-bottom:14px;">
+        <div class="top"><span>${escapeHtml(d.label)}</span><span class="diff neutral">${d.matchRate}% kattub</span></div>
+        <p class="hint" style="margin:2px 0 0;">${d.count} hanke põhjal (tekstiline kriteerium)</p>
+      </div>
+    `;
+  }).join('');
+}
+
 function render() {
   renderMetrics();
+  renderBreakdown();
   renderList();
 }
 
@@ -419,7 +513,7 @@ async function addSingle() {
   document.getElementById('f_name').value = '';
   document.getElementById('critRows').innerHTML = '';
   addCritRow('Hind', 'lower_better');
-  addCritRow('Tähtaeg (päeva)', 'lower_better');
+  addCritRow('Tähtaeg (tööpäeva)', 'lower_better');
   msg.textContent = 'Hange lisatud.';
   msg.className = 'status-msg ok';
   setTimeout(() => { msg.textContent = ''; }, 2500);
