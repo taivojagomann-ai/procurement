@@ -71,8 +71,7 @@
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 1.5rem; }
   .panel h2 { font-size: 15px; font-weight: 700; margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
   .panel h2 .chev { font-size: 12px; color: var(--text-muted); transition: transform 0.15s; }
-  .panel.collapsed .body { display: none; }
-  .panel.collapsed h2 .chev { transform: rotate(-90deg); }
+  .panel.collapsed { display: none; }
 
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
   label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
@@ -109,6 +108,7 @@
   .tender { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; }
   .tender-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
   .tender-head .name { font-weight: 700; font-size: 14px; }
+  .winner-name { font-size: 12px; color: var(--text-secondary); margin: 2px 0 0; }
   .badge { font-size: 11px; padding: 3px 10px; border-radius: 4px; font-weight: 700; white-space: nowrap; }
   .badge.won { background: var(--yellow); color: var(--ink); }
   .badge.lost { background: var(--lost-bg); color: var(--text-primary); }
@@ -152,28 +152,27 @@
 
 <div class="wrap">
 
-  <div class="metrics" id="metrics"></div>
-
-  <div class="panel" id="breakdownPanel" style="display:none;">
-    <h2 style="cursor:default;">Kriteeriumite keskmine erinevus</h2>
-    <p class="hint" style="margin-top:-6px;">Positiivne % tähendab, et oleme keskmiselt halvemad selles kriteeriumis; negatiivne, et oleme keskmiselt paremad. Arvutatud kõigi hangete peale, kus see kriteerium esineb.</p>
-    <div class="body" id="breakdownBody"></div>
+  <div style="display:flex; justify-content:flex-end; margin-bottom: 1rem;">
+    <button class="primary" onclick="togglePanel('addPanel')">+ Lisa uus</button>
   </div>
 
   <div class="panel collapsed" id="addPanel">
-    <h2 onclick="togglePanel('addPanel')">Lisa uus hange <span class="chev">▾</span></h2>
     <div class="body">
       <div class="grid2">
         <div class="field full">
           <label>Hanke nimi</label>
           <input type="text" id="f_name" placeholder="nt Tarkvaraarenduse raamleping">
         </div>
-        <div class="field full">
+        <div class="field">
           <label>Tulemus</label>
           <select id="f_status">
             <option value="lost">Kaotatud</option>
             <option value="won">Võidetud</option>
           </select>
+        </div>
+        <div class="field">
+          <label>Hanke võitja</label>
+          <input type="text" id="f_winner" placeholder="nt Playtech Estonia OÜ">
         </div>
       </div>
 
@@ -191,16 +190,30 @@
 
       <label>Või kleebi mitu hanget korraga</label>
       <p class="hint">Üks hange rea kohta, väljad eraldatud sümboliga <code>|</code>. Formaat:<br>
-      <code>Nimi | võidetud/kaotatud | Kriteerium:tüüp:meie:võitja | Kriteerium:tüüp:meie:võitja | ...</code><br>
-      Tüübid: <code>madalam</code> (väiksem parem, nt hind), <code>kõrgem</code> (suurem parem, nt kogemus), <code>tekst</code> (mittearvuline, nt proovitöö tulemus)</p>
-      <textarea id="f_bulk" placeholder="Kontorimööbli tarne | kaotatud | Hind:madalam:48200:44100 | Tähtaeg:madalam:30:21
-Tarkvaraarenduse raamleping | kaotatud | Hind:madalam:158000:141000 | Kogemus:kõrgem:3:6 | Proovitöö:tekst:Läbitud:Läbitud
-Turvateenuse osutamine | võidetud | Hind:madalam:76500:76500 | Ajaplaan:tekst:Vastas nõuetele:Vastas nõuetele"></textarea>
+      <code>Nimi | võidetud/kaotatud | Võitja nimi | Kriteerium:tüüp:meie:võitja | ...</code><br>
+      Võitja nimi lahtri võib ka tühjaks jätta. Tüübid: <code>madalam</code> (väiksem parem, nt hind), <code>kõrgem</code> (suurem parem, nt kogemus), <code>tekst</code> (mittearvuline, nt proovitöö tulemus)</p>
+      <textarea id="f_bulk" placeholder="Kontorimööbli tarne | kaotatud | Mööbliexpert OÜ | Hind:madalam:48200:44100 | Tähtaeg:madalam:30:21
+Tarkvaraarenduse raamleping | kaotatud | Nortal AS | Hind:madalam:158000:141000 | Kogemus:kõrgem:3:6 | Proovitöö:tekst:Läbitud:Läbitud
+Turvateenuse osutamine | võidetud | | Hind:madalam:76500:76500 | Ajaplaan:tekst:Vastas nõuetele:Vastas nõuetele"></textarea>
       <div class="row-actions">
         <button class="primary" onclick="addBulk()">Impordi read</button>
       </div>
       <p class="status-msg" id="bulkMsg"></p>
     </div>
+  </div>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div class="panel" id="breakdownPanel" style="display:none;">
+    <h2 style="cursor:default;">Kriteeriumite keskmine erinevus</h2>
+    <p class="hint" style="margin-top:-6px;">Positiivne % tähendab, et oleme keskmiselt halvemad selles kriteeriumis; negatiivne, et oleme keskmiselt paremad. Arvutatud kõigi hangete peale, kus see kriteerium esineb.</p>
+    <div class="body" id="breakdownBody"></div>
+  </div>
+
+  <div class="panel" id="winnersPanel" style="display:none;">
+    <h2 style="cursor:default;">Hangete võitjad</h2>
+    <p class="hint" style="margin-top:-6px;">Kes on hankeid võitnud ja kui suur osakaal see on kõigist sisestatud hangetest.</p>
+    <div class="body" id="winnersBody"></div>
   </div>
 
   <div class="toolbar">
@@ -411,7 +424,10 @@ function renderList() {
     return `
       <div class="tender">
         <div class="tender-head">
-          <span class="name">${escapeHtml(t.name)}</span>
+          <div>
+            <span class="name">${escapeHtml(t.name)}</span>
+            ${t.winnerName ? `<p class="winner-name">Võitja: ${escapeHtml(t.winnerName)}</p>` : ''}
+          </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <span class="badge ${won ? 'won' : 'lost'}">${won ? 'Võidetud' : 'Kaotatud'}</span>
             <button class="ghost" onclick="deleteTender('${t.id}')" title="Kustuta">✕</button>
@@ -490,15 +506,54 @@ function renderBreakdown() {
   }).join('');
 }
 
+function computeWinnerBreakdown() {
+  const counts = {};
+  tenders.forEach(t => {
+    const label = t.status === 'won' ? 'Meie' : (t.winnerName && t.winnerName.trim() ? t.winnerName.trim() : 'Teadmata');
+    counts[label] = (counts[label] || 0) + 1;
+  });
+  const total = tenders.length || 1;
+  return Object.entries(counts)
+    .map(([label, count]) => ({ label, count, pct: Math.round((count / total) * 1000) / 10 }))
+    .sort((a, b) => b.count - a.count);
+}
+
+function renderWinners() {
+  const panel = document.getElementById('winnersPanel');
+  const body = document.getElementById('winnersBody');
+  const data = computeWinnerBreakdown();
+
+  if (tenders.length === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+
+  const maxCount = Math.max(...data.map(d => d.count), 1);
+
+  body.innerHTML = data.map(d => {
+    const isUs = d.label === 'Meie';
+    const barPct = Math.max(2, Math.round((d.count / maxCount) * 100));
+    return `
+      <div class="crit-block" style="margin-bottom:14px;">
+        <div class="top"><span>${escapeHtml(d.label)}${isUs ? ' <span style="color:var(--text-muted);font-weight:400;">(meie)</span>' : ''}</span><span class="pill ${isUs ? 'pill-good' : 'pill-bad'}">${d.count} hanget · ${d.pct}%</span></div>
+        <div class="bar-row"><div class="bar-track"><div class="bar-fill" style="width:${barPct}%; background:${isUs ? 'var(--yellow)' : 'var(--dark)'}"></div></div></div>
+      </div>
+    `;
+  }).join('');
+}
+
 function render() {
   renderMetrics();
   renderBreakdown();
+  renderWinners();
   renderList();
 }
 
 async function addSingle() {
   const name = document.getElementById('f_name').value.trim();
   const status = document.getElementById('f_status').value;
+  const winnerName = document.getElementById('f_winner').value.trim();
   const criteria = readCritRowsFromForm();
   const msg = document.getElementById('singleMsg');
 
@@ -508,16 +563,18 @@ async function addSingle() {
     return;
   }
 
-  tenders.push({ id: crypto.randomUUID(), name, status, criteria });
+  tenders.push({ id: crypto.randomUUID(), name, status, winnerName, criteria });
   await saveData();
   render();
 
   document.getElementById('f_name').value = '';
+  document.getElementById('f_winner').value = '';
   document.getElementById('critRows').innerHTML = '';
   addCritRow('Hind', 'lower_better');
   addCritRow('Tähtaeg (tööpäeva)', 'lower_better');
   msg.textContent = 'Hange lisatud.';
   msg.className = 'status-msg ok';
+  document.getElementById('addPanel').classList.add('collapsed');
   setTimeout(() => { msg.textContent = ''; }, 2500);
 }
 
@@ -542,8 +599,16 @@ async function addBulk() {
     if (!name) { skipped++; return; }
     const status = /v[õo]it/i.test(statusRaw) ? 'won' : 'lost';
 
+    // Winner name is optional: if part[2] looks like a criterion (label:type:our:win), skip it as winner name
+    let winnerName = '';
+    let critStart = 2;
+    if (parts[2] !== undefined && parts[2].split(':').length < 4) {
+      winnerName = parts[2];
+      critStart = 3;
+    }
+
     const criteria = [];
-    for (let i = 2; i < parts.length; i++) {
+    for (let i = critStart; i < parts.length; i++) {
       const segs = parts[i].split(':').map(s => s.trim());
       if (segs.length < 4) continue;
       const [label, typeRaw, ourRaw, winRaw] = segs;
@@ -556,7 +621,7 @@ async function addBulk() {
       });
     }
     if (criteria.length === 0) { skipped++; return; }
-    tenders.push({ id: crypto.randomUUID(), name, status, criteria });
+    tenders.push({ id: crypto.randomUUID(), name, status, winnerName, criteria });
     added++;
   });
 
@@ -565,6 +630,7 @@ async function addBulk() {
   document.getElementById('f_bulk').value = '';
   msg.textContent = `${added} hanget lisatud${skipped ? ', ' + skipped + ' rida vahele jäetud (vale formaat)' : ''}.`;
   msg.className = skipped && !added ? 'status-msg err' : 'status-msg ok';
+  if (added > 0) document.getElementById('addPanel').classList.add('collapsed');
 }
 
 async function deleteTender(id) {
