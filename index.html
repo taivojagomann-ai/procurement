@@ -160,8 +160,8 @@
     <div class="body">
       <div class="grid2">
         <div class="field full">
-          <label>Hanke nimi</label>
-          <input type="text" id="f_name" placeholder="nt Tarkvaraarenduse raamleping">
+          <label>Hanke nimi *</label>
+          <input type="text" id="f_name" placeholder="nt Tarkvaraarenduse raamleping" required>
         </div>
         <div class="field">
           <label>Tulemus</label>
@@ -171,8 +171,8 @@
           </select>
         </div>
         <div class="field">
-          <label>Hanke võitja</label>
-          <input type="text" id="f_winner" placeholder="nt Playtech Estonia OÜ">
+          <label>Hanke võitja *</label>
+          <input type="text" id="f_winner" placeholder="nt Playtech Estonia OÜ" required>
         </div>
       </div>
 
@@ -191,10 +191,10 @@
       <label>Või kleebi mitu hanget korraga</label>
       <p class="hint">Üks hange rea kohta, väljad eraldatud sümboliga <code>|</code>. Formaat:<br>
       <code>Nimi | võidetud/kaotatud | Võitja nimi | Kriteerium:tüüp:meie:võitja | ...</code><br>
-      Võitja nimi lahtri võib ka tühjaks jätta. Tüübid: <code>madalam</code> (väiksem parem, nt hind), <code>kõrgem</code> (suurem parem, nt kogemus), <code>tekst</code> (mittearvuline, nt proovitöö tulemus)</p>
+      Võitja nimi on kohustuslik — kui hange võideti ise, kirjuta selleks "Meie". Tüübid: <code>madalam</code> (väiksem parem, nt hind), <code>kõrgem</code> (suurem parem, nt kogemus), <code>tekst</code> (mittearvuline, nt proovitöö tulemus)</p>
       <textarea id="f_bulk" placeholder="Kontorimööbli tarne | kaotatud | Mööbliexpert OÜ | Hind:madalam:48200:44100 | Tähtaeg:madalam:30:21
 Tarkvaraarenduse raamleping | kaotatud | Nortal AS | Hind:madalam:158000:141000 | Kogemus:kõrgem:3:6 | Proovitöö:tekst:Läbitud:Läbitud
-Turvateenuse osutamine | võidetud | | Hind:madalam:76500:76500 | Ajaplaan:tekst:Vastas nõuetele:Vastas nõuetele"></textarea>
+Turvateenuse osutamine | võidetud | Meie | Hind:madalam:76500:76500 | Ajaplaan:tekst:Vastas nõuetele:Vastas nõuetele"></textarea>
       <div class="row-actions">
         <button class="primary" onclick="addBulk()">Impordi read</button>
       </div>
@@ -557,8 +557,8 @@ async function addSingle() {
   const criteria = readCritRowsFromForm();
   const msg = document.getElementById('singleMsg');
 
-  if (!name || criteria.length === 0) {
-    msg.textContent = 'Sisesta nimi ja vähemalt üks täidetud kriteerium.';
+  if (!name || !winnerName || criteria.length === 0) {
+    msg.textContent = 'Sisesta hanke nimi, hanke võitja ja vähemalt üks täidetud kriteerium.';
     msg.className = 'status-msg err';
     return;
   }
@@ -593,19 +593,13 @@ async function addBulk() {
 
   lines.forEach(line => {
     const parts = line.split('|').map(p => p.trim());
-    if (parts.length < 3) { skipped++; return; }
+    if (parts.length < 4) { skipped++; return; }
     const name = parts[0];
     const statusRaw = parts[1];
-    if (!name) { skipped++; return; }
+    const winnerName = parts[2];
+    if (!name || !winnerName) { skipped++; return; }
     const status = /v[õo]it/i.test(statusRaw) ? 'won' : 'lost';
-
-    // Winner name is optional: if part[2] looks like a criterion (label:type:our:win), skip it as winner name
-    let winnerName = '';
-    let critStart = 2;
-    if (parts[2] !== undefined && parts[2].split(':').length < 4) {
-      winnerName = parts[2];
-      critStart = 3;
-    }
+    const critStart = 3;
 
     const criteria = [];
     for (let i = critStart; i < parts.length; i++) {
