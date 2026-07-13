@@ -108,6 +108,9 @@
   .crit-row .rm { padding: 8px 10px; }
 
   .tender { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; }
+  .tender-excluded { opacity: 0.55; }
+  .include-toggle { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
+  .include-toggle input { width: 13px; height: 13px; cursor: pointer; }
   .tender-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
   .tender-head .name { font-weight: 700; font-size: 14px; }
   .winner-name { font-size: 12px; color: var(--text-secondary); margin: 2px 0 0; }
@@ -229,6 +232,8 @@ Turvateenuse osutamine | võidetud | Meie | Hind:madalam:76500:76500:80000 | Aja
     <span><span class="legend-dot" style="background:var(--ours)"></span> Meie pakkumus</span>
     <span><span class="legend-dot" style="background:var(--won)"></span> Võidetud pakkumus</span>
     <div class="spacer"></div>
+    <button class="small" onclick="setAllIncluded(true)">Arvesta kõik kokkuvõttes</button>
+    <button class="small" onclick="setAllIncluded(false)">Tühista kõik kokkuvõttest</button>
     <label><input type="checkbox" id="onlyLost" onchange="render()"> Näita ainult kaotatud</label>
   </div>
 
@@ -352,10 +357,15 @@ async function saveData() {
   }
 }
 
+function getIncludedTenders() {
+  return tenders.filter(t => t.included !== false);
+}
+
 function computeMetrics() {
-  const total = tenders.length;
-  const won = tenders.filter(t => t.status === 'won').length;
-  const lost = tenders.filter(t => t.status === 'lost');
+  const inc = getIncludedTenders();
+  const total = inc.length;
+  const won = inc.filter(t => t.status === 'won').length;
+  const lost = inc.filter(t => t.status === 'lost');
 
   const problemCount = {};
   lost.forEach(t => {
@@ -463,14 +473,18 @@ function renderList() {
 
   container.innerHTML = data.map(t => {
     const won = t.status === 'won';
+    const included = t.included !== false;
     return `
-      <div class="tender">
+      <div class="tender ${included ? '' : 'tender-excluded'}">
         <div class="tender-head">
           <div>
             <span class="name">${escapeHtml(t.name)}</span>
             ${t.winnerName ? `<p class="winner-name">Võitja: ${escapeHtml(t.winnerName)}</p>` : ''}
           </div>
-          <div style="display:flex; align-items:center; gap:8px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <label class="include-toggle" title="Kui märgitud, arvestatakse see hange üldistes kokkuvõtte plokkides">
+              <input type="checkbox" ${included ? 'checked' : ''} onchange="toggleIncluded('${t.id}')"> Arvesta kokkuvõttes
+            </label>
             <span class="badge ${won ? 'won' : 'lost'}">${won ? 'Võidetud' : 'Kaotatud'}</span>
             <button class="ghost" onclick="deleteTender('${t.id}')" title="Kustuta">✕</button>
           </div>
@@ -483,6 +497,20 @@ function renderList() {
   }).join('');
 }
 
+async function toggleIncluded(id) {
+  const t = tenders.find(x => x.id === id);
+  if (!t) return;
+  t.included = t.included === false ? true : false;
+  await saveData();
+  render();
+}
+
+async function setAllIncluded(value) {
+  tenders.forEach(t => { t.included = value; });
+  await saveData();
+  render();
+}
+
 function escapeHtml(str) {
   const d = document.createElement('div');
   d.textContent = str;
@@ -491,7 +519,7 @@ function escapeHtml(str) {
 
 function computeCriteriaBreakdown() {
   const map = {};
-  tenders.forEach(t => {
+  getIncludedTenders().forEach(t => {
     (t.criteria || []).forEach(c => {
       if (!map[c.label]) map[c.label] = { numericSum: 0, numericCount: 0, textTotal: 0, textMatch: 0 };
       if (c.type === 'text') {
@@ -550,11 +578,12 @@ function renderBreakdown() {
 
 function computeWinnerBreakdown() {
   const counts = {};
-  tenders.forEach(t => {
+  const inc = getIncludedTenders();
+  inc.forEach(t => {
     const label = t.status === 'won' ? 'Meie' : (t.winnerName && t.winnerName.trim() ? t.winnerName.trim() : 'Teadmata');
     counts[label] = (counts[label] || 0) + 1;
   });
-  const total = tenders.length || 1;
+  const total = inc.length || 1;
   return Object.entries(counts)
     .map(([label, count]) => ({ label, count, pct: Math.round((count / total) * 1000) / 10 }))
     .sort((a, b) => b.count - a.count);
@@ -565,7 +594,7 @@ function renderWinners() {
   const body = document.getElementById('winnersBody');
   const data = computeWinnerBreakdown();
 
-  if (tenders.length === 0) {
+  if (getIncludedTenders().length === 0) {
     panel.style.display = 'none';
     return;
   }
@@ -587,7 +616,7 @@ function renderWinners() {
 
 function computeBudgetBreakdown() {
   const map = {};
-  tenders.forEach(t => {
+  getIncludedTenders().forEach(t => {
     (t.criteria || []).forEach(c => {
       if (c.type === 'text') return;
       const hasRef = c.refValue !== undefined && c.refValue !== null && parseNum(c.refValue) !== 0;
@@ -612,7 +641,7 @@ function renderBudget() {
   const body = document.getElementById('budgetBody');
   const data = computeBudgetBreakdown();
 
-  if (tenders.length === 0 || data.length === 0) {
+  if (getIncludedTenders().length === 0 || data.length === 0) {
     panel.style.display = 'none';
     return;
   }
