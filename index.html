@@ -171,14 +171,14 @@
         </div>
         <div class="field">
           <label>Tulemus</label>
-          <select id="f_status">
+          <select id="f_status" onchange="updateWinLabels()">
             <option value="lost">Kaotatud</option>
             <option value="won">Võidetud</option>
           </select>
         </div>
         <div class="field">
           <label>Hanke võitja *</label>
-          <input type="text" id="f_winner" placeholder="nt Playtech Estonia OÜ" required>
+          <input type="text" id="f_winner" placeholder="nt Playtech Estonia OÜ, või \"Concise\", kui võitsime ise" required>
         </div>
       </div>
 
@@ -290,11 +290,19 @@ function addCritRow(label, type, ourVal, winVal, refVal) {
     </div>
     <div class="crit-row-bottom">
       <div><label>Meie väärtus</label><input type="text" class="c-our" placeholder="nt 3" value="${ourVal !== undefined ? escapeAttr(ourVal) : ''}"></div>
-      <div><label>Võitja väärtus</label><input type="text" class="c-win" placeholder="nt 6" value="${winVal !== undefined ? escapeAttr(winVal) : ''}"></div>
+      <div><label class="win-label">Võitja väärtus</label><input type="text" class="c-win" placeholder="nt 6" value="${winVal !== undefined ? escapeAttr(winVal) : ''}"></div>
       <div><label>Hankija piirmäär (valikuline)</label><input type="text" class="c-ref" placeholder="nt eelarve või tähtaeg" value="${refVal !== undefined ? escapeAttr(refVal) : ''}"></div>
     </div>
   `;
   document.getElementById('critRows').appendChild(div);
+  updateWinLabels();
+}
+
+function updateWinLabels() {
+  const isWon = document.getElementById('f_status').value === 'won';
+  document.querySelectorAll('.win-label').forEach(el => {
+    el.textContent = isWon ? '2. koha väärtus' : 'Võitja väärtus';
+  });
 }
 
 function escapeAttr(v) {
@@ -395,7 +403,9 @@ function renderMetrics() {
   `;
 }
 
-function renderCriterion(c) {
+function renderCriterion(c, status) {
+  const rivalLabel = status === 'won' ? '2. koht' : 'Võitja';
+
   const diffBad = c.type === 'lower_better'
     ? parseNum(c.ourValue) > parseNum(c.winValue)
     : c.type === 'higher_better'
@@ -420,7 +430,7 @@ function renderCriterion(c) {
         <div class="top"><span>${escapeHtml(c.label)}</span>${diffBad ? `<span class="pill pill-bad">${diffLabel}</span>` : `<span class="diff neutral">${diffLabel}</span>`}</div>
         <div class="text-compare">
           <span class="text-pill"><span class="who">Meie</span>${escapeHtml(String(c.ourValue))}</span>
-          <span class="text-pill"><span class="who">Võitja</span>${escapeHtml(String(c.winValue))}</span>
+          <span class="text-pill"><span class="who">${escapeHtml(rivalLabel)}</span>${escapeHtml(String(c.winValue))}</span>
         </div>
       </div>
     `;
@@ -442,7 +452,7 @@ function renderCriterion(c) {
       <div class="bar-row"><div class="bar-track"><div class="bar-fill ref" style="width:${refBar}%"></div></div><span class="bar-label">${fmtVal(c.refValue, c.type)} (piirmäär)</span></div>
       <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
         <span class="pill ${ourGood ? 'pill-good' : 'pill-bad'}">Meie vs piirmäär: ${ourRefDiff > 0 ? '+' : ''}${ourRefDiff}%</span>
-        <span class="pill ${winGood ? 'pill-good' : 'pill-bad'}">Võitja vs piirmäär: ${winRefDiff > 0 ? '+' : ''}${winRefDiff}%</span>
+        <span class="pill ${winGood ? 'pill-good' : 'pill-bad'}">${escapeHtml(rivalLabel)} vs piirmäär: ${winRefDiff > 0 ? '+' : ''}${winRefDiff}%</span>
       </div>
     `;
   }
@@ -490,7 +500,7 @@ function renderList() {
           </div>
         </div>
         <div class="criteria-grid">
-          ${(t.criteria || []).map(renderCriterion).join('')}
+          ${(t.criteria || []).map(c => renderCriterion(c, t.status)).join('')}
         </div>
       </div>
     `;
